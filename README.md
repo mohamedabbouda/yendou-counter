@@ -1,8 +1,8 @@
 # Yendou Counter Task
 
-A crafted React + TypeScript counter experience built for the Yendou Software Engineering Intern task.
+A crafted React + TypeScript counter implementation for the Yendou Software Engineering Intern task.
 
-This is intentionally more than a basic counter. The goal was to show attention to detail: clean state management, modular architecture, keyboard support, accessibility, edge-case handling, responsive design, animation, and clear documentation.
+The assignment asked for a `Counter` component, a global `CounterProvider`, a `useCounter()` hook, and a toast notification every time the `+1` button is clicked. I focused on matching those requirements while adding polish through clean architecture, accessible status updates, responsive styling, and a custom toast inspired by the provided design.
 
 ## Tech Stack
 
@@ -39,20 +39,17 @@ npm run preview
 
 ## Features
 
-- Increment, decrement, and reset controls
-- Step selection: 1, 2, or 5
-- Minimum and maximum boundaries: -10 to 10
-- Disabled states at boundaries
-- Recent value history
-- Counter status: neutral, positive, negative, minimum reached, maximum reached
-- Keyboard shortcuts:
-  - `ArrowUp` or `+` to increment
-  - `ArrowDown` or `-` to decrement
-  - `R` to reset
+- Counter starts at `0`
+- Button labelled `+1`
+- Counter increments by one on every click
+- Global `CounterProvider` stores and updates the counter value
+- `useCounter()` hook exposes the current count and `increment()` function
+- Toast notification appears after every increment
+- Toast displays the updated counter value
+- Custom toast styling closely follows the provided visual direction
+- Accessible toast using `role="status"` and `aria-live="polite"`
+- Visible focus state for keyboard users
 - Responsive layout
-- Animated count transitions
-- Visible focus states
-- Screen-reader-friendly live status updates
 
 ## Architecture
 
@@ -63,84 +60,64 @@ src/
   features/
     counter/
       components/
+        toast/
+          IncrementToast.tsx
+        Counter.tsx
+        CounterApp.tsx
+      context/
+        CounterContext.tsx
       hooks/
+        useCounter.ts
       lib/
+        counter.reducer.ts
       types/
+        counter.types.ts
 ```
 
 This keeps the counter domain logic separate from the root app entry point and makes the code easier to extend.
 
 ## Key Implementation Decisions
 
-### Reducer-based state management
+### CounterProvider
 
-I used a reducer because the counter has several related state transitions:
+`CounterProvider` owns the global counter state and exposes the counter API through React context. This keeps the counter state centralized and makes it available to both the `Counter` component and the toast.
 
-- Increment
-- Decrement
-- Reset
-- Step changes
-- Boundary checks
-- History updates
-- Last-action tracking
+### useCounter hook
 
-Keeping this logic in a reducer makes the behavior easier to reason about and test.
+`useCounter()` wraps access to the context and throws a clear error if it is used outside the provider. This makes the API safer and easier to use.
 
-### Boundary handling
+### Reducer-based state
 
-The counter is clamped between -10 and 10.
+I used a small reducer for the counter state so the update logic is explicit and easy to extend or test.
 
-When the value reaches a boundary, the related control is disabled and the status label communicates the current state clearly.
+### Toast behavior
 
-### Keyboard support
+Every time the `+1` button is clicked, the app calculates the next counter value, updates the state, and displays a toast saying:
 
-Keyboard shortcuts were added to make the interface faster and more delightful to use.
+```text
+Incremented
+Counter is now X
+```
 
-The hook ignores keyboard shortcuts while the user is focused on editable elements, which prevents accidental counter changes while typing.
+The toast auto-dismisses after a short delay.
 
 ### Accessibility
 
-The app includes:
+The implementation includes:
 
-- Semantic buttons
-- `aria-label` values for icon-style controls
-- `aria-pressed` for selected step buttons
-- Visible focus states
-- `aria-live` updates for dynamic status changes
-- Keyboard-operable interactions
+- Semantic button markup
+- `aria-label` on the `+1` button
+- Visible keyboard focus state
+- Toast with `role="status"`
+- `aria-live="polite"` for non-disruptive screen-reader updates
 
 ### Visual polish
 
-The UI uses:
-
-- A focused card layout
-- Subtle background depth
-- Hover and active states
-- Disabled states
-- Count-change animation
-- Responsive behavior for smaller screens
-
-## Edge Cases Considered
-
-- Preventing the counter from exceeding the maximum value
-- Preventing the counter from going below the minimum value
-- Disabling reset when the counter is already zero
-- Avoiding duplicated history beyond the configured history limit
-- Ignoring global keyboard shortcuts while typing in editable elements
-- Maintaining a usable layout on small screens
+The UI keeps the counter simple and close to the provided task screenshot, while the toast uses the supplied design direction: dark container, green success accent, rounded corners, depth, and entrance animation.
 
 ## What I Would Improve With More Time
 
-- Add unit tests for reducer behavior
-- Add Playwright tests for keyboard interactions
-- Add persisted state with `localStorage`
-- Add a deploy preview link
-- Add theme switching
-
-## Step 6.2 — Build again
-
-Run:
-
-```bash
-npm run build
-```
+- Add reducer unit tests
+- Add component tests for `CounterProvider` and `useCounter`
+- Add Playwright tests for click and toast behavior
+- Add a hosted preview link
