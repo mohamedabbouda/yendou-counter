@@ -1,10 +1,8 @@
+import { CounterApp } from "./features/counter/components/CounterApp";
+import "./App.css";
 
 function App() {
-  return (
-    <main>
-      <h1>Yendou Counter</h1>
-    </main>
-  );
+  return <CounterApp />;
 }
 
 export default App;
